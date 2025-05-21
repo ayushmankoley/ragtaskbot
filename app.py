@@ -10,7 +10,7 @@ from langchain.prompts import PromptTemplate
 
 # Streamlit layout setup
 st.set_page_config(page_title="RAG Chatbot", page_icon="🤖", layout="centered")
-st.title("🔍 RAG Chatbot using Gemini + LangChain")
+st.title("🔍 RAG Chatbot using Gemini + LangChain - Try typing Davila INC information")
 
 # Load components only once (cached)
 @st.cache_resource(show_spinner="Loading model and preparing documents...")
