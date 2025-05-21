@@ -1,4 +1,4 @@
-# Import libraries
+import streamlit as st
 import pandas as pd
 import os
 from langchain_google_genai import GoogleGenerativeAI
@@ -8,57 +8,59 @@ from langchain.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 
-# Set up Gemini API
-os.environ["GOOGLE_API_KEY"] = "AIzaSyDomENrYIfkA5bsnQFIyNoWGpFe0clRl20"
+# Streamlit layout setup
+st.set_page_config(page_title="RAG Chatbot", page_icon="🤖", layout="centered")
+st.title("🔍 RAG Chatbot using Gemini + LangChain")
 
-# Data Loading
-df = pd.read_csv('/content/organizations-100.csv')
-documents = []
-for i, row in df.iterrows():
-    content = " ".join([f"{col}: {val}" for col, val in row.items() if pd.notna(val)])
-    documents.append(content)
+# Load components only once (cached)
+@st.cache_resource(show_spinner="Loading model and preparing documents...")
+def setup_rag_pipeline():
+    os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
 
-# Text Splitting
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1000,
-    chunk_overlap=200,
-    length_function=len
-)
-chunks = text_splitter.create_documents(documents)
+    # Load CSV and convert to documents
+    df = pd.read_csv("organizations-100.csv")
+    documents = []
+    for _, row in df.iterrows():
+        content = " ".join([f"{col}: {val}" for col, val in row.items() if pd.notna(val)])
+        documents.append(content)
 
-# Vector Store Setup
-embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-vector_store = Chroma.from_documents(
-    documents=chunks,
-    embedding=embeddings
-)
+    # Split text
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    chunks = text_splitter.create_documents(documents)
 
-# RAG Pipeline Setup
-llm = GoogleGenerativeAI(model="gemini-2.5-flash-preview-05-20")
-template = """
-Use the following context to answer the question. If you don't know the answer based on the context,
-just say you don't know, don't try to make up an answer.
+    # Embed documents
+    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    vector_store = Chroma.from_documents(documents=chunks, embedding=embeddings)
 
-Context: {context}
+    # Gemini LLM and prompt
+    llm = GoogleGenerativeAI(model="gemini-2.5-flash-preview-05-20")
+    template = """
+    Use the following context to answer the question. If you don't know the answer based on the context,
+    just say you don't know, don't try to make up an answer.
 
-Question: {question}
+    Context: {context}
 
-Answer:
-"""
-prompt = PromptTemplate(template=template, input_variables=["context", "question"])
-qa_chain = RetrievalQA.from_chain_type(
-    llm=llm,
-    chain_type="stuff",
-    retriever=vector_store.as_retriever(search_kwargs={"k": 3}),
-    chain_type_kwargs={"prompt": prompt}
-)
+    Question: {question}
 
-# Chatbot Interface
-print("RAG Chatbot ready. Type 'exit' to end the conversation.")
-while True:
-    user_input = input("\nQuestion: ")
-    if user_input.lower() == 'exit':
-        print("Goodbye!")
-        break
-    response = qa_chain.invoke(user_input)
-    print("\nAnswer:", response['result'])
+    Answer:
+    """
+    prompt = PromptTemplate(template=template, input_variables=["context", "question"])
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=llm,
+        chain_type="stuff",
+        retriever=vector_store.as_retriever(search_kwargs={"k": 3}),
+        chain_type_kwargs={"prompt": prompt}
+    )
+
+    return qa_chain
+
+qa_chain = setup_rag_pipeline()
+
+# Chat interface
+user_input = st.chat_input("Ask a question about the organizations dataset...")
+if user_input:
+    st.chat_message("user").markdown(user_input)
+
+    with st.chat_message("assistant"):
+        response = qa_chain.invoke(user_input)
+        st.markdown(response['result'])
