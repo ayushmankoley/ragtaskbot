@@ -1,0 +1,35 @@
+Question: Mays Preston
+
+Answer: Name: Mays-Preston
+Organization Id: a0a6f9b3DbcBEb5
+Website: http://www.browning-key.com/
+Country: Mali
+Description: User-centric heuristic focus group
+Founded: 2006
+Industry: Military Industry
+Number of employees: 5786
+
+Question: Pineda Morton
+
+Answer: Here is the information about Pineda-Morton:
+
+*   **Index:** 88
+*   **Organization Id:** 8cC1bDa330a5871
+*   **Website:** https://www.carr.com/
+*   **Country:** United States Virgin Islands
+*   **Description:** Grass-roots methodical info-mediaries
+*   **Founded:** 1991
+*   **Industry:** Printing
+*   **Number of employees:** 6168
+
+Question: Huang and Sons
+
+Answer: Huang and Sons is an organization with the following details:
+*   **Index:** 89
+*   **Organization Id:** ED889CB2FE9cbd3
+*   **Website:** https://www.bolton.com/
+*   **Country:** Eritrea
+*   **Description:** Re-contextualized dynamic hierarchy
+*   **Founded:** 1981
+*   **Industry:** Semiconductors
+*   **Number of employees:** 7484
