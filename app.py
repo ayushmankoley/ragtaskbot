@@ -4,7 +4,7 @@ import os
 from langchain_google_genai import GoogleGenerativeAI
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import Chroma
+from langchain.vectorstores import FAISS
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 
@@ -30,7 +30,7 @@ def setup_rag_pipeline():
 
     # Embed documents
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-    vector_store = Chroma.from_documents(documents=chunks, embedding=embeddings)
+    vector_store = FAISS.from_documents(documents=chunks, embedding=embeddings)
 
     # Gemini LLM and prompt
     llm = GoogleGenerativeAI(model="gemini-2.5-flash-preview-05-20")
